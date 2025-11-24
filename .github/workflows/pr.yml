@@ -1,0 +1,59 @@
+name: 获取 pull request 变更的文件
+on:
+  # 在 pr 创建和同步（有新提交）时触发 
+  pull_request:
+    types: [opened, synchronize]
+     
+jobs:
+  get-changed-files:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 使用 actions/checkout action
+        # 将你的 GitHub 仓库代码，拉取（checkout）到运行当前工作流的虚拟服务器（Runner）上
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 设置环境变量
+        run: |
+          echo "BASE_COMMIT=$(git rev-parse origin/${{ github.base_ref }})" >> $GITHUB_ENV
+          echo "HEAD_COMMIT=$(git rev-parse origin/${{ github.head_ref }})" >> $GITHUB_ENV
+
+      - name: 获取变更的文件
+        id: changed-files
+        run: |
+          # 获取所有改动的文件列表
+          CHANGED_FILES=$(git diff --name-only $BASE_COMMIT $HEAD_COMMIT)
+          echo "CHANGED_FILES<<EOF" >> $GITHUB_ENV
+          echo "$CHANGED_FILES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+          # 统计改动文件数量
+          CHANGED_FILES_COUNT=$(echo "$CHANGED_FILES" | wc -l | tr -d ' ')
+          echo "CHANGED_FILES_COUNT=$CHANGED_FILES_COUNT" >> $GITHUB_ENV
+
+      - name: 展示变更的文件
+        run: |
+          echo "改动的文件数量: $CHANGED_FILES_COUNT"
+          echo "改动的文件列表:"
+          echo "$CHANGED_FILES"
+
+      - name: 获取变更文件的内容
+        run: |
+          echo "开始读取改动文件的内容:"
+          echo "======================="
+          
+          # 循环读取每个改动文件的内容
+          while IFS= read -r file; do
+            echo "📄 文件: $file"
+            
+             # 判断文件类型
+            if [[ $file == *.mdx ]]; then
+              echo "mdx 内容:"
+              cat "$file"
+            else
+              echo "跳过二进制文件或不支持的文件类型"
+            fi
+  
+            echo "-----------------------"
+          done <<< "$CHANGED_FILES"
