@@ -14,6 +14,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: 初始化 node 环境
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
       - name: 设置环境变量
         run: |
           echo "BASE_COMMIT=$(git rev-parse origin/${{ github.base_ref }})" >> $GITHUB_ENV
@@ -43,17 +48,7 @@ jobs:
           echo "开始读取改动文件的内容:"
           echo "======================="
           
-          # 循环读取每个改动文件的内容
-          while IFS= read -r file; do
-            echo "📄 文件: $file"
-            
-             # 判断文件类型
-            if [[ $file == *.mdx ]]; then
-              echo "mdx 内容:"
-              cat "$file"
-            else
-              echo "跳过二进制文件或不支持的文件类型"
-            fi
-  
-            echo "-----------------------"
-          done <<< "$CHANGED_FILES"
+          node .script/getContent.js $CHANGED_FILES
+
+          echo "-----------------------"
+
