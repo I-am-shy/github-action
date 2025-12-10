@@ -14,10 +14,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 初始化 node 环境
-        uses: actions/setup-node@v4
+      #- name: 初始化 node 环境
+      #  uses: actions/setup-node@v4
+      #  with:
+      #    node-version: 20
+          
+      - name: 初始化 bun 环境
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: 20
+          bun-version: latest
 
       - name: 设置环境变量
         run: |
@@ -48,7 +53,7 @@ jobs:
           echo "开始读取改动文件的内容:"
           echo "======================="
           
-          node .script/getContent.js $CHANGED_FILES
+          bun .script/getContent.js $CHANGED_FILES
 
           echo "-----------------------"
 
