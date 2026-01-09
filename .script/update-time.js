@@ -21,8 +21,9 @@ function updateTime(filePaths) {
     if(!filePath.endsWith('.mdx')) {
       continue;
     }
+    let content = '';
     try{
-      const content = fs.readFileSync(filePath, 'utf-8');
+      content = fs.readFileSync(filePath, 'utf-8');
     }catch(error){
       console.error(`读取 ${filePath} 失败: ${error.message}`);
       continue;
