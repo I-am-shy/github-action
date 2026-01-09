@@ -49,6 +49,11 @@ jobs:
         run: |
           bun run .script/update-time.js $CHANGED_FILES
       
+      - name: 设置 git 用户信息
+        run: |
+            git config --global user.email 2050808169@qq.com
+            git config --global user.name I-am-shy
+
       - name: 提交变更
         run: |
           git add .
